@@ -1,54 +1,156 @@
-# LatestAiDevelopment Crew
+# Assignment 2: Building an Agentic Application with Web Search Capabilities
 
-Welcome to the LatestAiDevelopment Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+## Overview
+In this assignment, you will create a multi-agent system using CrewAI that leverages web search capabilities. You'll implement at least two agents that work together to process and analyze web search results.
 
-## Installation
+## Learning Objectives
+- Implement a multi-agent system using CrewAI
+- Integrate web search capabilities using SerperDevTool
+- Design agent interactions for data processing and analysis
+- Practice working with YAML configurations for agent definitions
 
-Ensure you have Python >=3.10 <=3.13 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+## Requirements
 
-First, if you haven't already, install uv:
+### Technical Prerequisites
+- Python 3.111-3.12
+- CrewAI and CrewAI-tools packages
+- Serper.dev API key
 
+### Core Requirements
+1. Implement at least two agents:
+   - Agent 1: Must utilize SerperDevTool for web searching
+   - Agent 2: Must process/analyze the data from Agent 1
+2. Configure agents using YAML
+3. Implement proper error handling
+4. Include documentation
+
+## Setup Instructions
+
+### 1. Environment Setup
 ```bash
-pip install uv
+# Install required packages
+pip install crewai
+
+# Create new CrewAI project
+crewai create crew your_project_name
 ```
 
-Next, navigate to your project directory and install the dependencies:
+### 2. SerperDevTool Configuration
+```python
+from crewai_tools import SerperDevTool
 
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
-### Customizing
-
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/latest_ai_development/config/agents.yaml` to define your agents
-- Modify `src/latest_ai_development/config/tasks.yaml` to define your tasks
-- Modify `src/latest_ai_development/crew.py` to add your own logic, tools and specific args
-- Modify `src/latest_ai_development/main.py` to add custom inputs for your agents and tasks
-
-## Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
-
-```bash
-$ crewai run
+# Initialize the search tool
+search_tool = SerperDevTool()
 ```
 
-This command initializes the latest-ai-development Crew, assembling the agents and assigning them tasks as defined in your configuration.
+### 3. YAML Configuration Examples
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+#### agents.yaml
+```yaml
+search_agent:
+  name: "Web Search Agent"
+  role: "Internet Researcher"
+  goal: "Search and collect relevant information from the web"
+  backstory: "Expert at finding and collecting relevant information from internet sources"
+  tools:
+    - SerperDevTool
+  allow_delegation: true
 
-## Understanding Your Crew
+analysis_agent:
+  name: "Data Analysis Agent"
+  role: "Data Analyst"
+  goal: "Process and analyze web search results to extract meaningful insights"
+  backstory: "Specialized in analyzing and synthesizing information from various sources"
+  tools: []
+  allow_delegation: false
+```
 
-The latest-ai-development Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+#### tasks.yaml
+```yaml
+tasks:
+  - name: web_search
+    description: "Search the web for specified query"
+    agent: search_agent
+    expected_output: "Raw search results"
+    
+  - name: analyze_results
+    description: "Analyze and process search results"
+    agent: analysis_agent
+    expected_output: "Processed insights and analysis"
+    depends_on: web_search
+```
 
-## Support
+## Sample Implementation Structure
+```python
+from crewai import Crew, Agent, Task
+from crewai_tools import SerperDevTool
 
-For support, questions, or feedback regarding the LatestAiDevelopment Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
+# Initialize tools
+search_tool = SerperDevTool()
 
-Let's create wonders together with the power and simplicity of crewAI.
+# Create agents
+search_agent = Agent(
+    name="Web Search Agent",
+    role="Internet Researcher",
+    goal="Search and collect relevant information from the web",
+    backstory="Expert at finding and collecting relevant information from internet sources",
+    tools=[search_tool]
+)
+
+analysis_agent = Agent(
+    name="Data Analysis Agent",
+    role="Data Analyst",
+    goal="Process and analyze web search results to extract meaningful insights",
+    backstory="Specialized in analyzing and synthesizing information from various sources"
+)
+
+# Create tasks
+search_task = Task(
+    description="Search the web for [YOUR_QUERY]",
+    agent=search_agent
+)
+
+analysis_task = Task(
+    description="Analyze the search results and provide insights",
+    agent=analysis_agent
+)
+
+# Create and run crew
+crew = Crew(
+    agents=[search_agent, analysis_agent],
+    tasks=[search_task, analysis_task]
+)
+
+result = crew.kickoff()
+```
+
+## Evaluation Criteria
+- Functionality (40%)
+  - Proper implementation of web search
+  - Effective agent interaction
+  - Accurate data processing
+- Code Quality (30%)
+  - Clean, well-organized code
+  - Proper error handling
+  - Effective use of YAML configuration
+- Documentation (20%)
+  - Clear setup instructions
+  - Well-documented code
+  - Usage examples
+- Creativity (10%)
+  - Innovative use of agents
+  - Original application concept
+
+## Submission Guidelines
+1. Submit your code via GitHub repository
+2. Include:
+   - All source code
+   - YAML configuration files
+   - Requirements.txt or environment.yml
+   - README with setup and usage instructions
+   - Sample output demonstrating functionality
+
+
+
+## Resources
+- [CrewAI Documentation](https://docs.crewai.com/)
